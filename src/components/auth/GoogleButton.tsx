@@ -1,15 +1,21 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 interface GoogleButtonProps {
   onClick: () => void;
   mode: "login" | "register";
+  className?: string;
 }
 
-export function GoogleButton({ onClick, mode }: GoogleButtonProps) {
+export function GoogleButton({ onClick, mode, className }: GoogleButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full p-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 flex items-center justify-center gap-2"
+      className={cn(
+        "w-full p-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 flex items-center justify-center gap-2",
+        className
+      )}
     >
       <svg className="w-5 h-5" viewBox="0 0 24 24">
         <path
