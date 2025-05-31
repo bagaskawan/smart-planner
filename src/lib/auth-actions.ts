@@ -2,7 +2,7 @@
 
 // import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import createClient from "@/utils/supabase/server";
 
 // export async function login(formData: FormData) {
 //   const supabase = await createClient();
@@ -72,6 +72,9 @@ export async function signInWithGoogle() {
         access_type: "offline",
         prompt: "consent",
       },
+      redirectTo:
+        (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000") +
+        "/auth/callback",
     },
   });
   console.log("Google sign in data", data);
@@ -94,6 +97,9 @@ export async function signInWithGithub() {
         access_type: "offline",
         prompt: "consent",
       },
+      redirectTo:
+        (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000") +
+        "/auth/callback",
     },
   });
 

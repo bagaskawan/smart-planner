@@ -1,60 +1,54 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { LOGIN_PATH } from "@/constants/common";
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+export default async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request });
 
+  // Initialize Supabase server client with custom cookie handling
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: "",
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value: "",
-            ...options,
-          });
+        getAll: () => request.cookies.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+
+          // Re-create the response with updated cookies
+          supabaseResponse = NextResponse.next({ request });
+
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
       },
     }
   );
 
-  await supabase.auth.getUser();
+  // Fetch the current authenticated user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return response;
+  const path = request.nextUrl.pathname;
+
+  // Redirect unauthenticated users to login, except for auth routes
+  if (!user && !path.startsWith(LOGIN_PATH) && !path.startsWith("/auth")) {
+    const url = request.nextUrl.clone();
+    url.pathname = LOGIN_PATH;
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
+  }
+
+  // Prevent authenticated users from accessing the login page
+  if (user && path.startsWith(LOGIN_PATH)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  return supabaseResponse;
 }

@@ -3,8 +3,11 @@
 import { signInWithGithub, signInWithGoogle } from "@/lib/auth-actions";
 import { GoogleButton } from "./GoogleButton";
 import { GithubButton } from "./GithubButton";
+import useUser from "@/hooks/useUser";
 
 export function LoginForm() {
+  const user = useUser();
+  console.log("User data:", user);
   return (
     <div className="flex-grow flex flex-col justify-center max-w-sm mx-auto w-full text-center">
       <h1 className="text-5xl font-bold mb-2">Hi there!</h1>
