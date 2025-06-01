@@ -36,7 +36,7 @@ export default async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Redirect unauthenticated users to login, except for auth routes
-  if (!user && !path.startsWith(LOGIN_PATH) && !path.startsWith("/auth")) {
+  if (!user && !path.startsWith(LOGIN_PATH) && !path.startsWith("/login")) {
     const url = request.nextUrl.clone();
     url.pathname = LOGIN_PATH;
     url.searchParams.set("next", path);

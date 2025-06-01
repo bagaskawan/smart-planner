@@ -60,7 +60,7 @@ export async function signout() {
     redirect("/error");
   }
 
-  redirect("/logout");
+  redirect("/login");
 }
 
 export async function signInWithGoogle() {
@@ -77,8 +77,6 @@ export async function signInWithGoogle() {
         "/auth/callback",
     },
   });
-  console.log("Google sign in data", data);
-  console.log("Google sign in error", error);
 
   if (error) {
     console.log(error);
